@@ -157,8 +157,6 @@ def browse_button():
 
 
 def write_out():
-    window.files.clear()
-    window.e3.delete("1.0", "end")
     for names in window.files:
         window.e3.insert("end", names + '\n')
     window.e3.config(state="disabled")
