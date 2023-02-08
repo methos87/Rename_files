@@ -13,15 +13,17 @@ class Window(tk.Tk):
         self.title("Renamer")
         self.wm_iconbitmap(default='img/icon.ico')
         self.resizable(False, False)
+        self.radio = tk.IntVar()
         self.st_font = 'Arial', 10
         self.bold_font = 'Arial', 10, 'bold'
+        self.button_width = 8
 
         self.folder_path = tk.StringVar()
         self.files = []
         self.add_txt = tk.StringVar()
 
-        self.window_width = 800
-        self.window_height = 525
+        self.window_width = 675
+        self.window_height = 500
 
         self.geometry("{}x{}".format(self.window_width, self.window_height))
 
@@ -37,7 +39,7 @@ class Window(tk.Tk):
         self.geometry('{}x{}+{}+{}'.format(self.window_width, self.window_height, x, y))
 
         # Create the menu bar
-        menu_bar = tk.Menu(self)
+        menu_bar = tk.Menu(self, bg="black")
         self.config(menu=menu_bar)
 
         # Create a File menu and add it to the menu bar
@@ -53,44 +55,61 @@ class Window(tk.Tk):
         about_menu.add_command(label="Help", command=self.help)
         about_menu.add_command(label="About", command=self.about)
 
-        # ------------------------------LEFT FRAME---------------------------------------
+        # ------------------------------TOP FRAME---------------------------------------
         # Creating the Directory frame
-        left_frame = tk.LabelFrame(self, text="Directory", bg="white", fg="black")
-        left_frame.grid(row=0, column=0, sticky="nswe", padx=5)
+        top_frame = tk.LabelFrame(self, text="Describing")
+        top_frame.grid(row=0, column=0, sticky="W", padx=5, ipadx=284)
 
         # Creating an entry field for path
-        e1 = tk.Entry(left_frame, width=50, textvariable=self.folder_path)
+        tk.Label(top_frame, text='Describe texting').grid(row=4, column=0, sticky="W")
+
+        # ------------------------------BOTTOM FRAME---------------------------------------
+
+        # Creating the Directory frame
+        bottom_frame = tk.LabelFrame(self, text="Settings")
+        bottom_frame.grid(row=1, column=0, sticky="W", padx=5)
+
+        # ------------------------------LEFT FRAME---------------------------------------
+        # Creating the Directory frame
+        left_frame = tk.LabelFrame(bottom_frame, text="Directory", fg="black")
+        left_frame.grid(row=1, column=0, sticky="NSWE", padx=5, pady=5)
+
+        # Creating an entry field for path
+        e1 = tk.Entry(left_frame, width=40, textvariable=self.folder_path)
         e1.grid(row=0, column=0, padx=5, pady=10)
 
         # Create a browser button
-        b1 = tk.Button(left_frame, text="Browse", width=10, command=lambda: browse_button())
+        b1 = tk.Button(left_frame, text="Browse", width=self.button_width, command=lambda: browse_button())
         b1.grid(row=0, column=1, padx=5, pady=10, sticky="N")
 
         # Create an entry field for input text
         tk.Label(left_frame, text='Add: ').grid(row=4, column=0, sticky="W", padx=10)
-        e1 = tk.Entry(left_frame, width=50, textvariable=self.add_txt)
+        e1 = tk.Entry(left_frame, width=40, textvariable=self.add_txt)
         e1.grid(row=5, column=0, sticky="W", padx=10)
 
         # Create an add button
-        b1 = tk.Button(left_frame, text="Add", width=10, command=lambda: add(self.add_txt))
+        b1 = tk.Button(left_frame, text="Add", width=self.button_width, command=lambda: add(self.add_txt))
         b1.grid(row=5, column=1, padx=5, sticky="N")
 
+        # Create a radio buttons for first and after
+        r1 = tk.Radiobutton(left_frame, text="Add to first", variable=self.radio, value=1)
+        r1.grid(row=8, column=0, padx=10, sticky="W")
+
+        r2 = tk.Radiobutton(left_frame, text="Add to last", variable=self.radio, value=2)
+        r2.grid(row=9, column=0, padx=10, sticky="W")
+
         # Create a remove button
-        b1 = tk.Button(left_frame, text="Remove", width=10, command=lambda: remove(self.add_txt))
-        b1.grid(row=8, column=1, padx=5, sticky="N")
+        b1 = tk.Button(left_frame, text="Remove", width=self.button_width, command=lambda: remove(self.add_txt))
+        b1.grid(row=8, column=1, padx=5)
 
         # ------------------------------RIGHT FRAME---------------------------------------
         # Creating the right frame
-        right_frame = tk.LabelFrame(self, text="Files", bg="white", fg="black")
-        right_frame.grid(row=0, column=1, sticky="nswe")
+        right_frame = tk.LabelFrame(bottom_frame, text="Files", fg="black")
+        right_frame.grid(row=1, column=1, sticky="NSWE", padx=5, pady=5)
 
         # Creating an entry field for show files
-        self.e3 = tk.Text(right_frame, font=self.st_font, width=40)
-        self.e3.grid(row=0, column=0, padx=10, pady=10, ipadx=10, ipady=40)
-
-        # # Create a button 2
-        # b2 = tk.Button(self, text="Add", command=add(file_path, "text"))
-        # b2.grid(row=4, column=1)
+        self.e3 = tk.Text(right_frame, font=self.st_font, width=38)
+        self.e3.grid(row=0, column=0, padx=10, pady=10)
 
     @staticmethod
     def open_folder():
@@ -112,7 +131,17 @@ def add(text):
 
     for filename in os.listdir(file_path):
         print(filename)
-        dst = my_text + filename
+        res = re.search(r'\.[a-z]{1,3}', filename)
+        st = res.start()
+
+        if window.radio.get() == 1:
+            dst = my_text + filename
+
+        elif window.radio.get() == 2:
+            filename = list(filename)
+            filename.insert(st, my_text)
+            filename = ''.join(filename)
+
         src = file_path + filename
         dst = file_path + dst
         os.rename(src, dst)
@@ -143,7 +172,7 @@ def remove(text):
     if count == 0:
         messagebox.showinfo("showinfo", "The given text is not found in the list!")
     else:
-        messagebox.showinfo("showinfo", "Text is removed!")
+        messagebox.showinfo("showinfo", "{} is removed!".format(my_text))
 
 
 def browse_button():
