@@ -117,7 +117,7 @@ class Window(tk.Tk):
 
     @staticmethod
     def help():
-        messagebox.showinfo("showinfo", "This is a help...")
+        messagebox.showinfo("showinfo", "This is a small application for renaming files. Enjoy!")
 
     @staticmethod
     def about():
@@ -133,14 +133,18 @@ def add(text):
         print(filename)
         res = re.search(r'\.[a-z]{1,3}', filename)
         st = res.start()
+        dst = ""
+        print(st)
 
+        # adding first
         if window.radio.get() == 1:
             dst = my_text + filename
 
+        # adding last
         elif window.radio.get() == 2:
-            filename = list(filename)
-            filename.insert(st, my_text)
-            filename = ''.join(filename)
+            dst = list(filename)
+            dst.insert(st, my_text)
+            dst = ''.join(dst)
 
         src = file_path + filename
         dst = file_path + dst
